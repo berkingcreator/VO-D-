@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YSosyal beta</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Kütüphaneler -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- 1. GİRİŞ & KAYIT EKRANI -->
+    <div id="auth-view" class="view active">
+        <div class="auth-wrapper">
+            <div class="auth-left">
+                <h1>YSosyal.</h1>
+                <p>Güvenli ve Özgür Sosyal Ağ</p>
+            </div>
+            <div class="auth-right">
+                <div class="auth-box">
+                    <h2 id="auth-title">Giriş Yap</h2>
+                    <form id="auth-form">
+                        <div class="input-group">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="auth-email" placeholder="E-posta" required>
+                        </div>
+                        <div class="input-group">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="auth-password" placeholder="Şifre" required>
+                        </div>
+                        <button type="submit" class="btn-primary" id="auth-btn">Devam Et</button>
+                    </form>
+                    <div class="auth-links">
+                        <span id="toggle-auth">Yeni Hesap Oluştur</span>
+                    </div>
+                    <div id="auth-error" class="error-msg"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+
+    <!-- 2. ANA UYGULAMA EKRANI -->
+    <div id="app-view" class="view">
+        <div class="app-container">
+            
+            <!-- MOBİL ÜST BAR -->
+            <div class="mobile-top-bar">
+                <h1 class="brand-logo"><i class="fas fa-feather-alt"></i></h1>
+                <button id="hamburger-btn"><i class="fas fa-bars"></i></button>
+            </div>
+
+            <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+            <!-- SOL MENÜ (NAVIGASYON) -->
+            <nav class="sidebar">
+                <h1 class="brand-logo"><i class="fas fa-feather-alt"></i> YSosyal</h1>
+                <ul class="nav-links">
+                    <li data-target="feed-section" class="active"><i class="fas fa-home"></i> <span>Ana Sayfa</span></li>
+                    <li data-target="search-section"><i class="fas fa-search"></i> <span>Keşfet</span></li>
+                    <li data-target="dm-section"><i class="fas fa-envelope"></i> <span>Mesajlar</span></li>
+                    <li data-target="profile-section"><i class="fas fa-user"></i> <span>Profilim</span></li>
+                </ul>
+                <button id="logout-btn" class="btn-danger"><i class="fas fa-sign-out-alt"></i> <span>Çıkış Yap</span></button>
+            </nav>
+
+            <!-- ANA İÇERİK ALANI -->
+            <main class="content-area">
+                
+                <!-- AKIŞ BÖLÜMÜ -->
+                <section id="feed-section" class="content-section active">
+                    <div class="header-title">Ana Sayfa</div>
+                    <div class="create-post">
+                        <textarea id="post-text" placeholder="Neler oluyor?"></textarea>
+                        <div class="post-actions">
+                            <label for="post-image" class="icon-btn"><i class="fas fa-image"></i></label>
+                            <input type="file" id="post-image" accept="image/*" hidden>
+                            <button id="share-post-btn" class="btn-primary rounded-btn">Paylaş</button>
+                        </div>
+                    </div>
+                    <div id="feed-container"></div>
+                </section>
+
+                <!-- KEŞFET BÖLÜMÜ -->
+                <section id="search-section" class="content-section">
+                    <div class="header-title">Keşfet</div>
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="search-input" placeholder="Kullanıcı adı ara...">
+                    </div>
+                    <div id="search-results" class="user-list"></div>
+                </section>
+
+                <!-- MESAJLAR BÖLÜMÜ (GÜNCELLENDİ) -->
+                <section id="dm-section" class="content-section">
+                    <div class="header-title" id="dm-header-title">Gelen Kutusu</div>
+                    <div class="dm-layout">
+                        <div class="dm-sidebar" id="dm-inbox-list">
+                            <div class="empty-state">Mesajlarınız yükleniyor...</div>
+                        </div>
+                        
+                        <div class="dm-chat-area" id="chat-wrapper" style="display: none;">
+                            <div class="chat-header-bar">
+                                <div id="chat-user-info" class="chat-user-info"></div>
+                                <button id="close-chat-btn" class="close-chat"><i class="fas fa-times"></i></button>
+                            </div>
+                            <div id="chat-box" class="chat-box"></div>
+                            <div class="chat-input-area">
+                                <input type="text" id="chat-input" placeholder="Şifreli mesaj yaz...">
+                                <button id="send-msg-btn" class="btn-primary"><i class="fas fa-paper-plane"></i></button>
+                            </div>
+                        </div>
+                        <div id="no-chat-msg" class="empty-state dm-placeholder-msg">Bir sohbet seçin veya birini arayın.</div>
+                    </div>
+                </section>
+
+<!-- KENDİ PROFİLİM BÖLÜMÜ -->
+<section id="profile-section" class="content-section">
+    <div class="header-title">Profilim</div>
+    <div class="profile-banner-container">
+        <img id="my-banner-img" class="banner-img" src="">
+        <label for="upload-banner" class="edit-btn"><i class="fas fa-camera"></i></label>
+        <input type="file" id="upload-banner" accept="image/*" hidden>
+    </div>
+    <div class="profile-details">
+        <div class="pp-container">
+            <img id="my-pp-img" class="pp-img" src="">
+            <label for="upload-pp" class="edit-btn"><i class="fas fa-camera"></i></label>
+            <input type="file" id="upload-pp" accept="image/*" hidden>
+        </div>
+        
+        <div class="profile-info-wrapper">
+            <input type="text" id="my-username" class="profile-name-input" placeholder="Kullanıcı Adı">
+            <textarea id="my-bio" class="profile-bio-input" placeholder="Biyografi"></textarea>
+            <div id="my-stats" class="profile-stats"></div>
+            <!-- EKLENEN KISIM: Kendi İstatistiklerimiz -->
+            <div id="my-stats" class="profile-stats">
+                <!-- Burası JavaScript ile dolacak -->
+            </div>
+
+            <button id="save-profile-btn" class="btn-primary outline" style="margin-top:15px; width: 100%;">Değişiklikleri Kaydet</button>
+        </div>
+    </div>
+    <div class="my-posts-header">Gönderilerim</div>
+    <div id="my-posts-container"></div>
+</section>
+
+                <!-- BAŞKA KULLANICI PROFİL DETAYI (YENİ EKLENDİ) -->
+                <section id="user-detail-section" class="content-section">
+                    <div class="header-title">
+                        <button onclick="openSection('search-section')" class="back-btn"><i class="fas fa-arrow-left"></i></button>
+                        <span id="detail-header-name">Profil</span>
+                    </div>
+                    <div class="profile-banner-container">
+                        <img id="detail-banner" class="banner-img" src="">
+                    </div>
+                    <div class="profile-details">
+                        <div class="pp-container">
+                            <img id="detail-pp" class="pp-img" src="">
+                        </div>
+                        <div class="profile-info-wrapper" style="margin-top: 80px;">
+                            <h2 id="detail-username">Kullanıcı</h2>
+                            <p id="detail-bio" class="profile-bio-text"></p>
+                            <div id="detail-stats" class="profile-stats"></div>
+                            <div class="profile-actions" style="display: flex; gap: 10px; margin-top: 15px;">
+                                <button id="detail-follow-btn" class="btn-primary" style="flex:1;">Takip Et</button>
+                                <button id="detail-dm-btn" class="btn-primary outline" style="flex:1;"><i class="fas fa-envelope"></i> Mesaj At</button>
+                                <!-- index.html içindeki ilgili kısmı şu şekilde güncelle -->
+<div id="detail-stats" class="profile-stats">
+    <div id="detail-followers-count"><strong>0</strong> Takipçi</div>
+    <div id="detail-following-count"><strong>0</strong> Takip Edilen</div>
+</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="my-posts-header">Gönderiler</div>
+                    <div id="detail-posts-container"></div>
+                </section>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- MODALLAR (Sadece Özel İşlevler İçin) -->
+    
+    <!-- Takipçi Listesi Modalı -->
+    <div id="list-modal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <span class="close-modal">&times;</span>
+            <div id="list-modal-title" class="header-title" style="border:none;">Kullanıcılar</div>
+            <div id="list-modal-body" class="user-list"></div>
+        </div>
+    </div>
+
+    <!-- Gönderi Detay / Yorum Modalı -->
+    <div id="post-modal" class="modal">
+        <div class="modal-content post-detail-content">
+            <span class="close-modal">&times;</span>
+            <div id="post-detail-body" class="post-detail-body"></div>
+            <div class="comments-section">
+                <h3>Yorumlar</h3>
+                <div id="comments-container"></div>
+                <div class="add-comment">
+                    <input type="text" id="comment-input" placeholder="Yanıtını yaz...">
+                    <button id="send-comment-btn" class="btn-primary">Yanıtla</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <canvas id="compression-canvas" style="display:none;"></canvas>
+    <script type="module" src="app.js"></script>
+</body>
+</html>
